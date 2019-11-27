@@ -10,6 +10,8 @@ const WIN: i32 = 1;
 const DRAW: i32 = 0;
 const LOSE: i32 = -1;
 
+const BEST_OF: i32 = 5;
+
 fn generate_computer_move() -> &'static str {
     let computer_move = rand::thread_rng().gen_range(1, 3);
 
@@ -57,16 +59,7 @@ fn evaluate_move(user_move: &str, computer_move: &str) -> i32 {
     }
 }
 
-fn announce_result(result: i32) {
-    match result {
-        1 => println!("You win!"),
-        0 => println!("It's a draw"),
-        -1 => println!("You lose :("),
-        _ => panic!("Error announcing result!"), // impossible
-    }
-}
-
-fn main() {
+fn rps_round() -> i32 {
     let computer_move = generate_computer_move();
     // println!("Computer move: {}", computer_move);
 
@@ -84,7 +77,38 @@ fn main() {
 
         if validate_move(user_move) {
             let result = evaluate_move(user_move, computer_move);
-            announce_result(result);
+            return result;
+        }
+    }
+}
+
+fn main() {
+    let mut user_score = 0;
+    let mut computer_score = 0;
+
+    loop {
+        let result = rps_round();
+
+        match result {
+            1 => {
+                user_score += 1;
+                println!("You score: {}-{}", user_score, computer_score)
+            }
+            0 => println!("It's a draw: {}-{}", user_score, computer_score),
+            -1 => {
+                computer_score += 1;
+                println!("Computer score: {}-{}", user_score, computer_score);
+            }
+            _ => panic!("Error announcing result!"), // impossible
+        }
+
+        if user_score == BEST_OF {
+            println!("You Win");
+            break;
+        }
+
+        if computer_score == BEST_OF {
+            println!("You Lose");
             break;
         }
     }
